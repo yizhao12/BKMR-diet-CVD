@@ -1,7 +1,10 @@
 library(bkmr)
 library(ggplot2)
 
-##Extract summary statistics##
+setwd("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test/model")
+load("model_9.RData")
+
+##############Extract summary statistics##############
 ExtractEsts(fitkm)
 #model convergence
 TracePlot(fit = fitkm, par = "beta")
@@ -11,7 +14,17 @@ TracePlot(fit = fitkm, par = "r", comp =3)
 ExtractPIPs(fitkm)
 
 
-##summarize output##
+##############Visualize output##############
+#Overall effect 
+X<-as.matrix(covariate)
+Z<-as.matrix(exposure)
+risks.overall <- OverallRiskSummaries(fit = fitkm, y = outcome.v, Z = Z, X = X,
+                                      qs = seq(0.25, 0.75, by = 0.05),
+                                      q.fixed = 0.5, method = "exact")
+risks.overall
+ggplot(risks.overall, aes(quantile, est, ymin = est - 1.96*sd, ymax = est + 1.96*sd)) + geom_pointrange()
+
+
 #univariate (fix other exposures)
 pred.resp.univar <- PredictorResponseUnivar(fit = fitkm) #defalut fix at 0.5
 ggplot(pred.resp.univar, aes(z, est, ymin = est - 1.96*se, ymax = est + 1.96*se)) + geom_smooth(stat = "identity") + facet_wrap(~ variable) + ylab("h(z)")
