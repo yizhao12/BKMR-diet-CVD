@@ -2,7 +2,7 @@ library(bkmr)
 library(ggplot2)
 
 setwd("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test/model")
-load("model_9.RData")
+load("model_10.RData")
 
 ##############Extract summary statistics##############
 ExtractEsts(fitkm)
@@ -45,7 +45,7 @@ ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,
 
 #bivariates 
 #contour
-pairs<-data.frame(c(1,2,3,1,2,3,1,2,3),c(3,4,5,4,5,3,5,4,3)) #pair selection to display
+pairs<-data.frame(c(3,4,6,7,9,3,4,6,7,9,3,4,6,7,9),c(4,6,7,9,3,6,7,9,3,4,7,9,3,4,6)) #pair selection to display
 pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, z.pairs = pairs, min.plot.dist = 1)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   geom_raster() +
@@ -62,3 +62,6 @@ ggplot(pred.resp.bivar.levels, aes(z1, est)) +
   facet_grid(variable2 ~ variable1) +
   ggtitle("h(expos1 | quantiles of expos2)") +
   xlab("expos1")
+
+save.image("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test/model/model_10.RData")
+

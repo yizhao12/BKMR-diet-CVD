@@ -5,10 +5,10 @@ library(reshape2)
 
 #read in data
 setwd("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test")
-sample<-read.csv("sample_2000.csv")
+sample<-read.csv("sample_1500.csv")
 
-#set.seed(123)
-#sample<-sample[sample(1:nrow(sample),400, replace=FALSE), ]
+# set.seed(123)
+# sample<-sample[sample(1:nrow(sample),400, replace=FALSE), ]
 
 
 #Exposure
@@ -30,7 +30,7 @@ outcome.v<-as.vector(outcome[,1])
 
 #Covariate
 ####select covariates####
-covariate<-sample[c("AGE","BMIX", "F60ENRGY")] #take out income as it is categorical variable
+covariate<-sample[c("AGE","BMIX", "F60ENRGY","INCOME", "EDUC")] #take out income as it is categorical variable
 #########################
 
 
@@ -55,10 +55,10 @@ ggplot(data = melt(sample[c("SYST")]), mapping = aes(x = value)) +
   geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
   labs(title="Distribution of Outcome",x="Systolic BP")
 #Covariates
-ggplot(data = melt(sample[c("AGE","BMIX","F60ENRGY")]), mapping = aes(x = value)) + 
+ggplot(data = melt(sample[c("AGE","BMIX","F60ENRGY","INCOME","EDUC")]), mapping = aes(x = value)) + 
   geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
   ggtitle("Distribution of covariates")
 
 #3. Multiple Linear regression-use consonlas font in Word
 summary(lm(SYST~FRUITS +  VEGTABLS +  SOY +  NUTS +  WHLGRNS +  FISH +  REDMEAT +  
-             alcohol + F60SFA_0.1+F60MFA_0.1 + AGE + BMIX+F60ENRGY, data=sample))
+             alcohol + F60SFA_0.1+F60MFA_0.1 + AGE + BMIX+F60ENRGY+INCOME+EDUC, data=sample))
