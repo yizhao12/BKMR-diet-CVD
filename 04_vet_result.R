@@ -16,8 +16,8 @@ ExtractPIPs(fitkm)
 
 ##############Visualize output##############
 #Overall effect 
-X<-as.matrix(covariate)
-Z<-as.matrix(exposure)
+ X<-as.matrix(covariate)
+ Z<-as.matrix(exposure)
 risks.overall <- OverallRiskSummaries(fit = fitkm, y = outcome.v, Z = Z, X = X,
                                       qs = seq(0.25, 0.75, by = 0.05),
                                       q.fixed = 0.5, method = "exact")
@@ -45,7 +45,8 @@ ggplot(risks.singvar, aes(variable, est, ymin = est - 1.96*sd,
 
 #bivariates 
 #contour
-pairs<-data.frame(c(3,4,6,7,9,3,4,6,7,9,3,4,6,7,9),c(4,6,7,9,3,6,7,9,3,4,7,9,3,4,6)) #pair selection to display
+#pairs<-data.frame(c(rep(2,6),rep(3,5),rep(4,4),rep(5,3),rep(6,2),rep(7,1)),c(seq(3,8,by=1),seq(4,8,by=1),seq(5,8,by=1),seq(6,8,by=1),seq(7,8,by=1),8)) #pair selection to display
+pairs<-data.frame(c(3,3,3,4,4,6),c(4,6,8,6,8,8))
 pred.resp.bivar <- PredictorResponseBivar(fit = fitkm, z.pairs = pairs, min.plot.dist = 1)
 ggplot(pred.resp.bivar, aes(z1, z2, fill = est)) +
   geom_raster() +
