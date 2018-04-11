@@ -3,46 +3,44 @@ library(corrplot)
 library(reshape2)
 
 
-#read in data
-setwd("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test")
-sample<-read.csv("sample_600.csv")
+# read in dataset ---------------------------------------------------------
+setwd("/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test/dataset")
+df<-read.csv("v1_clean.csv")
 
-# set.seed(123)
-# sample<-sample[sample(1:nrow(sample),400, replace=FALSE), ]
+####choose which dietary pattern as exposure####
+diet<-(c("MEDI")) #DASH
+run<-data.frame(diet)
 
-
-#Exposure
-###select exposures####
-#set exposure as Medi diet
-sample$alcohol<-sample$BEER+sample$WINE+sample$LIQUOR
-#sample$fat_ratio<-sample$F60MFA/sample$F60SFA
-sample$F60SFA_0.1<-sample$F60SFA/10
-sample$F60MFA_0.1<-sample$F60MFA/10
+# Select exposure ---------------------------------------------------------
+if (run$diet=="MEDI"){
+df$alcohol<-df$BEER+df$WINE+df$LIQUOR
+#df$fat_ratio<-df$F60MFA/df$F60SFA
+df$F60SFA_0.1<-df$F60SFA/10
+df$F60MFA_0.1<-df$F60MFA/10
 exp_var<-c("FRUITS", "VEGTABLS", "SOY", "NUTS", "WHLGRNS", "FISH",  "alcohol", "REDMEAT", "F60SFA_0.1", "F60MFA_0.1")
+}
 
-# #Set Exposure as DASH diet
-# #1) fruits 2) vegetables 3) nuts and legumes 4) low-fat dairy 5) whole grains 6) sodium 7) SSB 8) red and processed meats
-# sample$nut_soy<-sample$NUTS+sample$SOY
-# sample$sodium_0.001<-sample$F60SODUM/1000
-# exp_var<-c("FRUITS", "VEGTABLS","nut_soy", "WHLGRNS","DAIRY", "sodium_0.001", "POP", "REDMEAT" ) 
+if (run$diet=="DASH") {
+#Set Exposure as DASH diet
+#1) fruits 2) vegetables 3) nuts and legumes 4) low-fat dairy 5) whole grains 6) sodium 7) SSB 8) red and processed meats
+df$nut_soy<-df$NUTS+df$SOY
+df$sodium_0.001<-df$F60SODUM/1000
+exp_var<-c("FRUITS", "VEGTABLS","nut_soy", "WHLGRNS","DAIRY", "sodium_0.001", "POP", "REDMEAT" )
+}
 
-exposure<-sample[exp_var]
+exposure<-df[exp_var]
 
-#Outcome
-####select outcome####
-outcome<-sample["SYST"]
-########################
+# Select outcome ----------------------------------------------------------
+outcome<-df["SYST"]
 outcome.v<-as.vector(outcome[,1])
 
-#Covariate
-####select covariates####
-covariate<-sample[c("AGE","BMIX", "F60ENRGY","INCOME", "EDUC")] 
-#########################
+# Select covariates -------------------------------------------------------
+covariate<-df[c("AGE","BMIX_ln", "F60ENRGY","INCOME", "EDUC")] 
 
 
-###########Visualization################
+# descriptive if random df------------------------------------------------------------
 #1. Correlation between exposures
-corrplot(cor(exposure), type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
+#corrplot(cor(exposure), type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
 # coll<-cor(exposure)
 # coll[lower.tri(coll,diag=TRUE)]=NA  #Prepare to drop duplicates and meaningless information
 # coll=as.data.frame(as.table(coll))  #Turn into a 3-column table
@@ -51,23 +49,18 @@ corrplot(cor(exposure), type = "upper", order = "hclust", tl.col = "black", tl.s
 # coll
 
 
-#2. distribution of variables
-#exposures
-ggplot(data = melt(exposure), mapping = aes(x = value)) + geom_histogram(bins = 15) + facet_wrap(~variable, scales = 'free_x') + 
-  labs(title="distribution of exposure", x="servings per day; for SFA, MFA: 10*g/d")
-summary(exposure)
-#outcome
-ggplot(data = melt(sample[c("SYST")]), mapping = aes(x = value)) + 
-  geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
-  labs(title="Distribution of Outcome",x="Systolic BP")
-#Covariates
-ggplot(data = melt(sample[c("AGE","BMIX","F60ENRGY","INCOME","EDUC")]), mapping = aes(x = value)) + 
-  geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
-  ggtitle("Distribution of covariates")
+# #2. distribution of variables
+# #exposures
+# ggplot(data = melt(exposure), mapping = aes(x = value)) + geom_histogram(bins = 15) + facet_wrap(~variable, scales = 'free_x') + 
+#   labs(title="distribution of exposure", x="servings per day; for SFA, MFA: 10*g/d")
+# summary(exposure)
+# #outcome
+# ggplot(data = melt(df[c("SYST")]), mapping = aes(x = value)) + 
+#   geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
+#   labs(title="Distribution of Outcome",x="Systolic BP")
+# #Covariates
+# ggplot(data = melt(df[c("AGE","BMIX","F60ENRGY","INCOME","EDUC")]), mapping = aes(x = value)) + 
+#   geom_histogram(bins = 20) + facet_wrap(~variable, scales = 'free_x') + 
+#   ggtitle("Distribution of covariates")
+write.csv(df,"/Users/Yi/Box Sync/BKNR/WHIOS/WHIOS_test/dataset/v1_prep.csv")
 
-#3. Multiple Linear regression-use consonlas font in Word
-summary(lm(SYST~FRUITS +  VEGTABLS +  SOY +  NUTS +  WHLGRNS +  FISH +  REDMEAT +  alcohol + F60SFA_0.1+F60MFA_0.1
-         + AGE + BMIX+F60ENRGY+INCOME+EDUC, data=sample))
-
-# summary(lm(SYST~FRUITS +  VEGTABLS + nut_soy +  WHLGRNS + DAIRY +  sodium_0.001 +  POP +  REDMEAT+
-#              + AGE + BMIX+F60ENRGY+INCOME+EDUC,data=sample))
